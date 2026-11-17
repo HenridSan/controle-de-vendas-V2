@@ -17,3 +17,23 @@ def custo_por_unidade(produto, gastos):
     if produto["quantidade"] <= 0:
         return 0
     return custo_total(produto, gastos) / produto["quantidade"]
+
+
+def unidades_vendidas(produto, vendas):
+    total = 0
+    for venda in vendas:
+        if venda["produto_id"] == produto["id"]:
+            total = total + venda["quantidade"]
+    return total
+
+
+def restantes(produto, vendas):
+    return produto["quantidade"] - unidades_vendidas(produto, vendas)
+
+
+def total_recebido(produto, vendas):
+    total = 0
+    for venda in vendas:
+        if venda["produto_id"] == produto["id"]:
+            total = total + venda["quantidade"] * venda["preco"]
+    return total

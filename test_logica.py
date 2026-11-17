@@ -1,6 +1,6 @@
 import pytest
 
-from logica import custo_total, custo_por_unidade
+from logica import custo_total, custo_por_unidade, unidades_vendidas, restantes, total_recebido
 
 def novo_bolo():
     return {
@@ -38,3 +38,36 @@ def test_custo_por_unidade_quantidade_zero():
     bolo = novo_bolo()
     bolo["quantidade"] = 0
     assert custo_por_unidade(bolo, novo_bolo()) == 0
+
+
+def vendas_de_exemplo():
+    return [
+        {"id": 1, "produto_id": 1, "data": "2026-11-10", "quantidade": 1, "preco": 8.0},
+        {"id": 2, "produto_id": 1, "data": "2026-11-12", "quantidade": 2, "preco": 8.0},
+        {"id": 3, "produto_id": 1, "data": "2026-11-15", "quantidade": 1, "preco": 10.0},
+        {"id": 4, "produto_id": 2, "data": "2026-11-15", "quantidade": 5, "preco": 35.0},
+    ]
+
+
+def test_unidade_vendidas_soma_soma_produto():
+    assert unidades_vendidas(novo_bolo(), vendas_de_exemplo()) == 4
+
+
+def test_unidade_vendidas_sem_venda():
+    assert unidades_vendidas(novo_bolo(), []) == 0
+
+
+def test_restantes():
+    assert restantes(novo_bolo(), vendas_de_exemplo()) == 6
+
+
+def test_restantes_sem_venda():
+    assert restantes(novo_bolo(), []) == 10
+
+
+def test_total_recebido_vendendo_usa_venda():
+    assert total_recebido(novo_bolo(), vendas_de_exemplo()) == 34.0
+
+
+def test_total_recebido_sem_venda():
+    assert total_recebido(novo_bolo(), []) == 0
