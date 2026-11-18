@@ -37,3 +37,16 @@ def total_recebido(produto, vendas):
         if venda["produto_id"] == produto["id"]:
             total = total + venda["quantidade"] * venda["preco"]
     return total
+
+
+def caixa(produto, gastos, vendas):
+    return total_recebido(produto, vendas) - custo_total(produto, gastos)
+
+
+def lucro_em_vendas(produto, gastos, vendas):
+    custo_unidade = custo_por_unidade(produto, gastos)
+    total = 0
+    for venda in vendas:
+        if venda["produto_id"] == produto["id"]:
+            total = total + venda["quantidade"] * (venda["preco"] - custo_unidade)
+    return total

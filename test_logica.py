@@ -1,6 +1,6 @@
 import pytest
 
-from logica import custo_total, custo_por_unidade, unidades_vendidas, restantes, total_recebido
+from logica import custo_total, custo_por_unidade, unidades_vendidas, restantes, total_recebido, lucro_em_vendas, caixa
 
 def novo_bolo():
     return {
@@ -71,3 +71,29 @@ def test_total_recebido_vendendo_usa_venda():
 
 def test_total_recebido_sem_venda():
     assert total_recebido(novo_bolo(), []) == 0
+
+
+def test_caixa_comeca_negativa():
+    assert caixa(novo_bolo(), gasto_por_exemplo(), []) == -17.0
+
+
+def test_caixa_com_venda():
+    assert caixa(novo_bolo(), gasto_por_exemplo(), vendas_de_exemplo()) == 17.0
+
+
+def test_lucro_em_venda_sem_venda():
+    assert lucro_em_vendas(novo_bolo(), gasto_por_exemplo(), []) == 0
+
+
+def test_lucro_em_venda_vendendo():
+    lucro = lucro_em_vendas(novo_bolo(), gasto_por_exemplo(), vendas_de_exemplo())
+    assert lucro == pytest.approx(27.2)
+
+
+def test_caixa_e_lucro_em_vendas():
+    bolo = novo_bolo()
+    gasto = gasto_por_exemplo()
+    venda = vendas_de_exemplo()
+    custo_sobra = restantes(bolo, venda) * custo_por_unidade(bolo, gasto)
+    esperado = lucro_em_vendas(bolo, gasto, venda) - custo_sobra
+    assert caixa(bolo, gasto, venda) == pytest.approx(esperado)
