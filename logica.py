@@ -50,3 +50,21 @@ def lucro_em_vendas(produto, gastos, vendas):
         if venda["produto_id"] == produto["id"]:
             total = total + venda["quantidade"] * (venda["preco"] - custo_unidade)
     return total
+
+
+def criar_venda(produto, vendas, quantidade, hoje, preco=None):
+    if quantidade <= 0:
+        raise ValueError("A quantidade precisa ser maior que zero.")
+    if preco is None:
+        preco = produto["preco"]
+    if preco <= 0:
+        raise ValueError("O preço tem que ser maior que zero.")
+    sobra = restantes(produto, vendas)
+    if quantidade > sobra:
+        raise ValueError(f"A quantidade precisa ser maior que {sobra}")
+    return {
+        "produto_id": produto["id"],
+        "data": hoje.isoformat(),
+        "quantidade": quantidade,
+        "preco": preco,
+    }

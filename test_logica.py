@@ -1,6 +1,10 @@
+from datetime import date
+
 import pytest
 
-from logica import custo_total, custo_por_unidade, unidades_vendidas, restantes, total_recebido, lucro_em_vendas, caixa
+from logica import custo_total, custo_por_unidade, unidades_vendidas, restantes, total_recebido, lucro_em_vendas, caixa, criar_venda
+
+HOJE = date(2026, 11, 16)
 
 def novo_bolo():
     return {
@@ -97,3 +101,53 @@ def test_caixa_e_lucro_em_vendas():
     custo_sobra = restantes(bolo, venda) * custo_por_unidade(bolo, gasto)
     esperado = lucro_em_vendas(bolo, gasto, venda) - custo_sobra
     assert caixa(bolo, gasto, venda) == pytest.approx(esperado)
+
+
+def test_criar_venda_usa_produto_e_data():
+    venda = criar_venda(novo_bolo(), [], 2, HOJE)
+    assert venda == {
+        "produto_id": 1,
+        "data": "2026-11-16",
+        "quantidade": 2,
+        "preco": 8.0,
+    }
+
+
+def test_criar_venda_com_desconto():
+    venda = criar_venda(novo_bolo(), [], 1, HOJE, preco=6.0)
+    assert venda["preco"] == 6.0
+
+
+def test_criar_venda_aceita_vender_tudo_que_resta():
+    venda = criar_venda(novo_bolo(), vendas_de_exemplo(), 6, HOJE)
+    assert venda["quantidade"] == 6
+
+
+def test_criar_venda_vende_o_que_resta():
+    with pytest.raises(ValueError):
+        criar_venda(novo_bolo(), vendas_de_exemplo(), 7, HOJE)
+
+
+def test_criar_venda_quantidade_zero():
+    with pytest.raises(ValueError):
+        criar_venda(novo_bolo(), [], 0, HOJE)
+
+
+def test_criar_venda_preco_zero():
+    with pytest.raises(ValueError):
+        criar_venda(novo_bolo(), [], 1, HOJE, preco=0)
+
+
+def test_criar_venda_nao_altera_lista():
+    vendas = vendas_de_exemplo()
+    criar_venda(novo_bolo(), [], 1, HOJE)
+    assert len(vendas) == 4
+
+
+def test_estoque_zera_apos_vender_tudo():
+    bolo = novo_bolo()
+    vendas = vendas_de_exemplo()
+    vendas.append(criar_venda(bolo, vendas, 6, HOJE))
+    assert restantes(bolo, vendas) == 0
+    with pytest.raises(ValueError):
+        criar_venda(bolo, vendas, 1, HOJE)
